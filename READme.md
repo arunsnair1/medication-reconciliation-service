@@ -1,120 +1,146 @@
-# Medication Reconciliation & Conflict Reporting Service
+# Medication Reconciliation Service
 
-##  Overview
-
-Backend service to ingest medication lists from multiple sources, detect conflicts, maintain versioned history, and support resolution + reporting.
+A backend service for ingesting patient medication data from multiple sources, detecting conflicts, and managing their resolution.
 
 ---
 
-##  Setup 
+## 🚀 Live Demo
+
+API Documentation (Swagger UI):
+👉 https://medication-reconciliation-service-1.onrender.com/docs
+
+---
+
+## ⚙️ Setup Instructions (Run Locally)
 
 ```bash
-git clone <repo-url>
-cd med-reconciliation-service
+# Clone the repository
+git clone <your-repo-link>
+cd medication-reconciliation-service
+
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate  # Windows
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Set environment variable
+set MONGO_URL=your_mongodb_atlas_url
+
+# Run the server
 uvicorn app.main:app --reload
 ```
 
-Open: http://127.0.0.1:8000/docs
+---
+
+## Architecture Overview
+
+The service follows a layered architecture:
+
+* **Routes** → API endpoints (FastAPI)
+* **Services** → Business logic (ingestion, conflict detection)
+* **Repositories** → Database interaction (MongoDB)
+* **Models/Schemas** → Data validation (Pydantic)
+
+### Flow:
+
+1. Client sends medication data
+2. Service compares with latest snapshot
+3. Conflicts are detected
+4. New snapshot stored with versioning
+5. Conflicts stored separately for tracking
 
 ---
 
-##  Architecture
+## Assumptions & Trade-offs
 
-```
-Routes → Services → Repositories → MongoDB
-```
-
-* Routes: API endpoints
-* Services: business logic (versioning, conflict detection)
-* Repositories: DB access
-* MongoDB: snapshots + conflicts
+* Conflict detection is based on simple field comparison (e.g., dose mismatch)
+* Versioning is linear (no branching/merging of histories)
+* No authentication added to keep scope focused
+* MongoDB chosen for flexibility with nested medication data
 
 ---
 
-##  Data Model
+## Known Limitations & Future Improvements
 
-### Snapshots
+* No user authentication / authorization
+* Conflict resolution is manual only
+* No pagination for reports
+* No advanced conflict rules (e.g., drug interactions)
 
-* versioned medication history per patient
-* append-only (no overwrite)
+### Next Steps:
 
-### Conflicts
-
-* stored separately for querying/reporting
-* fields: patient_id, drug, type, status, timestamps
-
----
-
-##  API
-
-* `POST /patients/{id}/medications` → ingest + detect conflicts
-* `GET /reports/unresolved-conflicts` → aggregation report
-* `PATCH /conflicts/{id}/resolve` → mark resolved
+* Add auth (JWT)
+* Improve conflict detection rules
+* Add audit logs
+* Deploy with Docker for portability
 
 ---
 
-##  Seed Data
+## Seed Data
+
+You can populate sample data using:
 
 ```bash
 python scripts/seed.py
 ```
 
-Creates 10+ patients with varied conflicts.
-
 ---
 
-##  Tests
+## Tests
+
+Run tests with:
 
 ```bash
 pytest
 ```
 
-Covers ingestion flow (core domain logic).
+Covers core ingestion and conflict detection logic.
 
 ---
-
-##  Assumptions & Trade-offs
-
-* No single “truth source” → latest snapshot used for comparison
-* Conflict detection limited to:
-
-  * dose mismatch
-  * status mismatch
-* Used MongoDB (schema flexibility, faster iteration)
-* Denormalized snapshots for simplicity vs strict normalization
-
----
-
-## Limitations / Next Steps
-
-* No drug interaction rules (only basic conflicts)
-* No authentication / multi-user handling
-* No severity prioritization
-* Would add:
-
-  * rule engine (drug classes, blacklists)
-  * better normalization layer
-  * UI/dashboard
-
-
 
 ## AI Usage
 
-Used AI for:
+AI tools were used to:
 
-* initial boilerplate setup (FastAPI structure)
-* debugging environment/setup issues
+* Speed up boilerplate setup (FastAPI structure, initial scaffolding)
+* Assist in refining architecture and edge-case handling
 
-Manually implemented/refined:
+### Manual Work:
 
-* data model design
-* versioning strategy
-* conflict detection logic
-* separation of snapshot vs conflict storage
+* Designed overall architecture and data flow
+* Implemented conflict detection and versioning logic
+* Structured repositories and services cleanly
 
+
+---
+
+## Tech Stack
+
+* FastAPI
+* MongoDB (Atlas)
+* Motor (async MongoDB driver)
+* Pydantic
+* Pytest
+
+---
+
+## Deployment
+
+* Hosted on Render
+* Uses MongoDB Atlas for cloud database
+* Environment-based configuration for production readiness
+
+---
+
+## Key Features
+
+* Medication ingestion with versioning
+* Conflict detection across sources
+* Conflict storage and resolution
+* Reporting of unresolved conflicts
+* Fully async backend
 
 ---
 
