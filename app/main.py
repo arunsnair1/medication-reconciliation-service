@@ -3,6 +3,7 @@ from app.db.mongo import db
 from app.routes.ingestion import router as ingestion_router
 from app.routes.reports import router as report_router
 from app.routes.conflicts import router as conflict_router
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 
@@ -11,6 +12,10 @@ app = FastAPI()
 app.include_router(ingestion_router)
 app.include_router(report_router)
 app.include_router(conflict_router)
+
+MONGO_DETAILS = os.getenv("MONGO_URL")
+client = AsyncIOMotorClient(MONGO_DETAILS)
+database = client.my_database
 
 @app.get("/")
 async def root():
