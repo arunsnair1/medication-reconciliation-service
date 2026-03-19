@@ -115,9 +115,6 @@ Manually implemented/refined:
 * conflict detection logic
 * separation of snapshot vs conflict storage
 
-Example correction:
-
-* Replaced naive `_id` string queries with `ObjectId` handling for proper MongoDB updates.
 
 ---
 
